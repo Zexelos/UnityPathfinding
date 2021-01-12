@@ -1,41 +1,56 @@
+using System;
 using UnityEngine;
 
-public class MyGrid
+public class MyGrid<TGridObject>
 {
     int width;
     int height;
     float cellSize;
     Vector3 originPosition;
-    int[,] gridArray;
+    TGridObject[,] gridArray;
     TextMesh[,] debugTextMesh;
 
-    public MyGrid(int width, int height, float cellSize, Vector3 originPosition)
+    public MyGrid(int width, int height, float cellSize, Vector3 originPosition, Func<MyGrid<TGridObject>, int, int, TGridObject> createGridObject)
     {
         this.width = width;
         this.height = height;
         this.cellSize = cellSize;
         this.originPosition = originPosition;
-        gridArray = new int[width, height];
-        debugTextMesh = new TextMesh[width, height];
 
-        Debug.Log($"Created new grid, w: {width}, h: {height}");
-
+        gridArray = new TGridObject[width, height];
         for (int x = 0; x < gridArray.GetLength(0); x++)
         {
             for (int z = 0; z < gridArray.GetLength(1); z++)
             {
-                debugTextMesh[x, z] = Utility.CreateWorldText(gridArray[x, z].ToString(), null, GetWorldPosition(x, z) + new Vector3(cellSize, 0, cellSize) * 0.5f, 20, Color.white, TextAnchor.MiddleCenter);
-
-                Debug.DrawLine(GetWorldPosition(x, z), GetWorldPosition(x, z + 1), Color.white, 100f);
-                Debug.DrawLine(GetWorldPosition(x, z), GetWorldPosition(x + 1, z), Color.white, 100f);
+                gridArray[x, z] = createGridObject(this, x, z);
             }
         }
 
-        Debug.DrawLine(GetWorldPosition(0, height), GetWorldPosition(width, height), Color.white, 100f);
-        Debug.DrawLine(GetWorldPosition(width, 0), GetWorldPosition(width, height), Color.white, 100f);
+        Debug.Log($"Created new grid, w: {width}, h: {height}");
+
+        debugTextMesh = new TextMesh[width, height];
+
+        bool debug = true;
+
+        if (debug)
+        {
+            for (int x = 0; x < gridArray.GetLength(0); x++)
+            {
+                for (int z = 0; z < gridArray.GetLength(1); z++)
+                {
+                    debugTextMesh[x, z] = Utility.CreateWorldText(gridArray[x, z]?.ToString(), null, GetWorldPosition(x, z) + new Vector3(cellSize, 0, cellSize) * 0.5f, 20, Color.white, TextAnchor.MiddleCenter);
+
+                    Debug.DrawLine(GetWorldPosition(x, z), GetWorldPosition(x, z + 1), Color.white, 100f);
+                    Debug.DrawLine(GetWorldPosition(x, z), GetWorldPosition(x + 1, z), Color.white, 100f);
+                }
+            }
+
+            Debug.DrawLine(GetWorldPosition(0, height), GetWorldPosition(width, height), Color.white, 100f);
+            Debug.DrawLine(GetWorldPosition(width, 0), GetWorldPosition(width, height), Color.white, 100f);
+        }
     }
 
-    public void SetValue(int x, int z, int value)
+    public void SetGetGridObject(int x, int z, TGridObject value)
     {
         if (x >= 0 && z >= 0 && x < width && z < height)
         {
@@ -44,27 +59,27 @@ public class MyGrid
         }
     }
 
-    public void SetValue(Vector3 worldPosition, int value)
+    public void SetGetGridObject(Vector3 worldPosition, TGridObject value)
     {
         GetXZ(worldPosition, out int x, out int z);
-        SetValue(x, z, value);
+        SetGetGridObject(x, z, value);
     }
 
-    public int GetValue(int x, int z)
+    public TGridObject GetGridObject(int x, int z)
     {
         if (x >= 0 && z >= 0 && x < width && z < height)
             return gridArray[x, z];
         else
-            return 0;
+            return default;
     }
 
-    public int GetValue(Vector3 worldPosition)
+    public TGridObject GetGridObject(Vector3 worldPosition)
     {
         GetXZ(worldPosition, out int x, out int z);
-        return GetValue(x, z);
+        return GetGridObject(x, z);
     }
 
-    void GetXZ(Vector3 worldPosition, out int x, out int z)
+    public void GetXZ(Vector3 worldPosition, out int x, out int z)
     {
         x = Mathf.FloorToInt((worldPosition - originPosition).x / cellSize);
         z = Mathf.FloorToInt((worldPosition - originPosition).z / cellSize);
@@ -73,5 +88,15 @@ public class MyGrid
     Vector3 GetWorldPosition(int x, int z)
     {
         return new Vector3(x, 0, z) * cellSize + originPosition;
+    }
+
+    public int GetWidth()
+    {
+        return width;
+    }
+
+    public int GetHeight()
+    {
+        return height;
     }
 }

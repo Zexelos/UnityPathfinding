@@ -1,16 +1,13 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Testing : MonoBehaviour
 {
-    MyGrid grid1;
-    MyGrid grid2;
-    MyGrid grid3;
+    Pathfinding pathfinding;
 
     void Start()
     {
-        grid1 = new MyGrid(10, 10, 10f, Vector3.left * 50);
-        grid2 = new MyGrid(2, 2, 5f, Vector3.right * 10);
-        grid3 = new MyGrid(6, 5, 4f, Vector3.forward * 20);
+        pathfinding = new Pathfinding(10, 10);
     }
 
     void Update()
@@ -23,10 +20,20 @@ public class Testing : MonoBehaviour
 
             if (plane.Raycast(ray, out float distance))
             {
-                Vector3 tmp = ray.GetPoint(distance);
-                grid1.SetValue(tmp, 1);
-                grid2.SetValue(tmp, 2);
-                grid3.SetValue(tmp, 3);
+                Vector3 clickPosition = ray.GetPoint(distance);
+
+                pathfinding.GetGrid().GetXZ(clickPosition, out int x, out int z);
+
+                List<PathNode> path = pathfinding.FindPath(0, 0, x, z);
+
+                if (path != null)
+                {
+                    for (int i = 0; i < path.Count - 1; i++)
+                        Debug.DrawLine(new Vector3(path[i].x, 0, path[i].z) * 10f + new Vector3(1, 0 , 1) * 5f, new Vector3(path[i + 1].x, 0, path[i + 1].z) * 10f + new Vector3(1, 0, 1) * 5f, Color.green, 100f);
+
+                    for (int i = 0; i < path.Count; i++)
+                        Debug.Log($"{path[i].x},{path[i].z}");
+                }
             }
         }
 
@@ -39,9 +46,7 @@ public class Testing : MonoBehaviour
             if (plane.Raycast(ray, out float distance))
             {
                 Vector3 tmp = ray.GetPoint(distance);
-                Debug.Log(grid1.GetValue(tmp));
-                Debug.Log(grid2.GetValue(tmp));
-                Debug.Log(grid3.GetValue(tmp));
+                //Debug.Log(grid1.GetValue(tmp));
             }
         }
     }
