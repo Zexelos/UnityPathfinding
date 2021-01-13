@@ -45,8 +45,10 @@ public class Testing : MonoBehaviour
 
             if (plane.Raycast(ray, out float distance))
             {
-                Vector3 tmp = ray.GetPoint(distance);
-                //Debug.Log(grid1.GetValue(tmp));
+                Vector3 clickPosition = ray.GetPoint(distance);
+
+                pathfinding.GetGrid().GetXZ(clickPosition, out int x, out int z);
+                pathfinding.GetNode(x, z).SetIsWalkable(!pathfinding.GetNode(x, z).isWalkable);
             }
         }
     }

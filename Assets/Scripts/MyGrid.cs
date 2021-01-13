@@ -50,7 +50,7 @@ public class MyGrid<TGridObject>
         }
     }
 
-    public void SetGetGridObject(int x, int z, TGridObject value)
+    public void SetGridObject(int x, int z, TGridObject value)
     {
         if (x >= 0 && z >= 0 && x < width && z < height)
         {
@@ -59,10 +59,10 @@ public class MyGrid<TGridObject>
         }
     }
 
-    public void SetGetGridObject(Vector3 worldPosition, TGridObject value)
+    public void SetGridObject(Vector3 worldPosition, TGridObject value)
     {
         GetXZ(worldPosition, out int x, out int z);
-        SetGetGridObject(x, z, value);
+        SetGridObject(x, z, value);
     }
 
     public TGridObject GetGridObject(int x, int z)
