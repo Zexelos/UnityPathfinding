@@ -12,12 +12,34 @@ public class Pathfinding
 
     public Pathfinding(int x, int z)
     {
-        grid = new MyGrid<PathNode>(x, z, 10, Vector3.zero, (MyGrid<PathNode> g, int x, int z) => new PathNode(g, x, z));
+        grid = new MyGrid<PathNode>(x, z, 5, new Vector3(-25, 0, -25), (MyGrid<PathNode> g, int x, int z) => new PathNode(g, x, z));
     }
 
     public MyGrid<PathNode> GetGrid()
     {
         return grid;
+    }
+
+    public List<Vector3> FindPath(Vector3 startWorldPosition, Vector3 endWorldPosition)
+    {
+        grid.GetXZ(startWorldPosition, out int startX, out int startZ);
+        grid.GetXZ(endWorldPosition, out int endX, out int endZ);
+
+        List<PathNode> path = FindPath(startX, startZ, endX, endZ);
+
+        if (path == null)
+            return null;
+        else
+        {
+            List<Vector3> vectorPath = new List<Vector3>();
+
+            foreach (PathNode pathNode in path)
+            {
+                vectorPath.Add(new Vector3(pathNode.x, 0, pathNode.z) * grid.GetCellSize() + Vector3.one * grid.GetCellSize() * 0.5f);
+            }
+
+            return vectorPath;
+        }
     }
 
     public List<PathNode> FindPath(int startX, int startZ, int endX, int endZ)
